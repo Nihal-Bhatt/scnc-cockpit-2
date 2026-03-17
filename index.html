@@ -232,147 +232,214 @@ body {
 .upload-demo-btn:hover { background: rgba(0,201,167,0.06); }
 
 /* =============================================
-   RIGHT PANEL
+   RIGHT PANEL — Tabbed redesign
    ============================================= */
 .right-panel {
   display: flex; flex-direction: column;
   border-left: 1px solid var(--border);
   overflow: hidden;
   background: var(--bg2);
+  width: 360px;
 }
 
-/* KPI strip */
-.kpi-strip {
-  padding: 14px 16px;
+/* Tab nav */
+.rp-tabs {
+  display: flex;
   border-bottom: 1px solid var(--border);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  flex-shrink: 0;
+  background: var(--bg2);
+}
+.rp-tab {
+  flex: 1; padding: 12px 6px;
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  letter-spacing: .6px; text-transform: uppercase;
+  color: var(--text3); border: none; background: transparent;
+  cursor: pointer; transition: all .15s;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.rp-tab:hover { color: var(--text2); }
+.rp-tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+/* Tab panes */
+.rp-pane { display: none; flex: 1; overflow-y: auto; min-height: 0; flex-direction: column; }
+.rp-pane.active { display: flex; flex-direction: column; }
+
+/* ---- TAB 1: KPIs ---- */
+.kpi-grid-2x2 {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; padding: 14px 14px 0;
   flex-shrink: 0;
 }
-.kpi-mini {
-  background: var(--bg3);
-  border-radius: 8px;
-  padding: 10px 12px;
+.kpi-card {
+  border-radius: 12px; padding: 14px;
   border: 1px solid var(--border);
+  position: relative; overflow: hidden;
 }
-.kpi-mini-label {
-  font-size: 10px; color: var(--text3);
-  margin-bottom: 4px;
-  text-transform: uppercase; letter-spacing: .4px;
+.kpi-card::after {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  border-radius: 12px 12px 0 0;
 }
-.kpi-mini-val {
-  font-family: var(--mono);
-  font-size: 18px; font-weight: 700; line-height: 1;
+.kpi-card.c-green  { background: rgba(52,211,153,0.06);  border-color: rgba(52,211,153,0.15);  }
+.kpi-card.c-green::after  { background: var(--green);  }
+.kpi-card.c-amber  { background: rgba(251,191,36,0.06);  border-color: rgba(251,191,36,0.15);  }
+.kpi-card.c-amber::after  { background: var(--amber2); }
+.kpi-card.c-red    { background: rgba(252,129,129,0.06); border-color: rgba(252,129,129,0.15); }
+.kpi-card.c-red::after    { background: var(--red2);   }
+.kpi-card.c-blue   { background: rgba(74,158,255,0.06);  border-color: rgba(74,158,255,0.15);  }
+.kpi-card.c-blue::after   { background: var(--blue);   }
+.kpi-card.c-teal   { background: rgba(0,201,167,0.06);   border-color: rgba(0,201,167,0.15);   }
+.kpi-card.c-teal::after   { background: var(--teal);   }
+.kpi-card.c-purple { background: rgba(167,139,250,0.06); border-color: rgba(167,139,250,0.15); }
+.kpi-card.c-purple::after { background: var(--purple); }
+.kpi-card-label { font-size: 10px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
+.kpi-card-val {
+  font-family: var(--mono); font-size: 26px; font-weight: 700;
+  line-height: 1; margin-bottom: 4px;
 }
-.kpi-mini-val.green { color: var(--green); }
-.kpi-mini-val.amber { color: var(--amber2); }
-.kpi-mini-val.red   { color: var(--red2); }
-.kpi-mini-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.kpi-card.c-green  .kpi-card-val { color: var(--green);  }
+.kpi-card.c-amber  .kpi-card-val { color: var(--amber2); }
+.kpi-card.c-red    .kpi-card-val { color: var(--red2);   }
+.kpi-card.c-blue   .kpi-card-val { color: var(--blue);   }
+.kpi-card.c-teal   .kpi-card-val { color: var(--teal);   }
+.kpi-card.c-purple .kpi-card-val { color: var(--purple); }
+.kpi-card-sub { font-size: 10px; color: var(--text3); line-height: 1.4; }
 
-/* Fill rate bars */
-.fillrate-panel {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
+/* Fill rate chart block */
+.fr-chart-block {
+  margin: 14px 14px 0;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
   flex-shrink: 0;
 }
-.panel-label {
-  font-family: var(--mono);
-  font-size: 9px; color: var(--text3);
-  letter-spacing: 1px; text-transform: uppercase;
-  margin-bottom: 10px;
+.fr-chart-title {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  color: var(--text3); letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 12px;
 }
-.fr-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-.fr-lbl { font-size: 10px; color: var(--text2); min-width: 90px; }
-.fr-bar-wrap { flex: 1; height: 5px; background: var(--bg); border-radius: 3px; overflow: hidden; }
-.fr-bar { height: 100%; border-radius: 3px; transition: width .8s ease; }
-.fr-pct { font-family: var(--mono); font-size: 10px; font-weight: 700; min-width: 32px; text-align: right; }
+.fr-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.fr-bar-row:last-child { margin-bottom: 0; }
+.fr-bar-lbl { font-size: 10px; color: var(--text2); min-width: 94px; }
+.fr-bar-track { flex: 1; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+.fr-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+.fr-bar-pct { font-family: var(--mono); font-size: 11px; font-weight: 700; min-width: 34px; text-align: right; }
 
-/* Risk feed */
-.risk-feed { flex: 1; overflow-y: auto; padding: 12px 16px; min-height: 0; }
+/* Cost row */
+.cost-row-block {
+  margin: 14px 14px 14px;
+  background: var(--bg3);
+  border: 1px solid rgba(252,129,129,0.15);
+  border-radius: 12px;
+  padding: 14px;
+  flex-shrink: 0;
+}
+.cost-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; }
+.cost-row:last-child { margin-bottom: 0; }
+.cost-lbl { color: var(--text2); }
+.cost-val { font-family: var(--mono); font-weight: 700; }
+.cost-val.red   { color: var(--red2); }
+.cost-val.amber { color: var(--amber2); }
+.cost-val.green { color: var(--green); }
+.cost-divider   { height: 1px; background: var(--border); margin: 8px 0; }
+.cost-total-lbl { font-size: 13px; font-weight: 600; color: var(--text); }
+.cost-total-val { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--red2); }
+
+/* ---- TAB 2: RISKS ---- */
+.risk-feed { flex: 1; overflow-y: auto; padding: 12px 14px; min-height: 0; }
 .risk-item {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: border-color .15s;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px;
+  margin-bottom: 8px; cursor: pointer; transition: all .15s;
 }
-.risk-item:hover { border-color: var(--border2); }
+.risk-item:hover { border-color: var(--border2); transform: translateX(2px); }
 .risk-item.selected { border-color: var(--amber); background: rgba(240,165,0,0.04); }
 .ri-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .sev-badge {
   font-family: var(--mono); font-size: 8px; font-weight: 700;
-  padding: 2px 7px; border-radius: 3px; letter-spacing: .5px;
+  padding: 3px 8px; border-radius: 4px; letter-spacing: .5px;
 }
-.sev-badge.critical { background: rgba(240,82,82,.12); color: var(--red2); border: 1px solid rgba(240,82,82,.18); }
-.sev-badge.high     { background: rgba(240,165,0,.10); color: var(--amber2); border: 1px solid rgba(240,165,0,.18); }
-.sev-badge.medium   { background: rgba(74,158,255,.08); color: var(--blue); border: 1px solid rgba(74,158,255,.15); }
-.sev-badge.low      { background: rgba(52,211,153,.07); color: var(--green); border: 1px solid rgba(52,211,153,.12); }
+.sev-badge.critical { background: rgba(240,82,82,.15);  color: var(--red2);   border: 1px solid rgba(240,82,82,.25); }
+.sev-badge.high     { background: rgba(240,165,0,.12);  color: var(--amber2); border: 1px solid rgba(240,165,0,.22); }
+.sev-badge.medium   { background: rgba(74,158,255,.10); color: var(--blue);   border: 1px solid rgba(74,158,255,.2); }
+.sev-badge.low      { background: rgba(52,211,153,.08); color: var(--green);  border: 1px solid rgba(52,211,153,.15);}
 .ri-title { font-size: 12px; font-weight: 600; color: var(--text); flex: 1; }
-.ri-body  { font-size: 11px; color: var(--text2); line-height: 1.5; margin-bottom: 6px; }
+.ri-lines { margin-bottom: 8px; }
+.ri-line  { display: flex; gap: 6px; font-size: 11px; margin-bottom: 3px; }
+.ri-line-lbl { font-family: var(--mono); font-size: 9px; font-weight: 700; color: var(--text3); min-width: 60px; letter-spacing: .3px; text-transform: uppercase; padding-top: 1px; }
+.ri-line-val { color: var(--text2); line-height: 1.45; flex: 1; }
 .ri-nodes { display: flex; flex-wrap: wrap; gap: 4px; }
 .ri-node-tag {
   font-family: var(--mono); font-size: 9px;
-  padding: 2px 7px; border-radius: 4px;
-  background: var(--bg4); color: var(--text2);
+  padding: 2px 8px; border-radius: 4px;
+  background: var(--bg4); color: var(--text2); border: 1px solid var(--border);
+}
+
+/* ---- TAB 3: AI RECOMMENDATIONS ---- */
+.ai-pane-inner { padding: 14px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.ai-hint {
+  background: rgba(0,201,167,0.06); border: 1px solid rgba(0,201,167,0.15);
+  border-radius: 10px; padding: 12px 14px; font-size: 11px;
+  color: var(--teal); line-height: 1.6;
+}
+.ai-prompt-box {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px;
+}
+.ai-prompt-label { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.ai-prompt-text {
+  font-size: 11px; color: var(--text2); line-height: 1.6;
+  font-style: italic;
+  background: var(--bg2); border-radius: 6px; padding: 8px 10px;
   border: 1px solid var(--border);
+  user-select: all; cursor: text;
 }
-
-/* Financial impact */
-.impact-panel {
-  border-top: 1px solid var(--border);
-  padding: 14px 16px;
-  flex-shrink: 0;
+.gpt-open-btn {
+  width: 100%; padding: 11px;
+  background: var(--amber); color: #090d13;
+  border: none; border-radius: 10px;
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  cursor: pointer; transition: all .15s; letter-spacing: .5px;
 }
-.impact-row {
-  display: flex; justify-content: space-between;
-  align-items: baseline; margin-bottom: 6px; font-size: 12px;
-}
-.impact-lbl { color: var(--text2); }
-.impact-val { font-family: var(--mono); font-weight: 700; }
-.impact-val.red   { color: var(--red2); }
-.impact-val.amber { color: var(--amber2); }
-.impact-val.green { color: var(--green); }
-.impact-divider { height: 1px; background: var(--border); margin: 6px 0; }
-
-/* GPT import panel */
-.gpt-panel {
-  border-top: 1px solid var(--border);
-  padding: 12px 16px;
-  flex-shrink: 0;
-}
+.gpt-open-btn:hover { background: var(--amber2); }
+.ai-json-label { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; }
 .gpt-area {
   width: 100%;
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  border-radius: 8px;
-  padding: 8px 10px;
-  color: var(--text);
-  font-family: var(--sans);
-  font-size: 11px;
-  resize: none; outline: none;
-  height: 60px;
-  transition: border-color .15s;
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 10px 12px;
+  color: var(--text); font-family: var(--sans); font-size: 11px;
+  resize: none; outline: none; height: 80px;
+  transition: border-color .15s; line-height: 1.5;
 }
-.gpt-area:focus { border-color: var(--amber); }
+.gpt-area:focus { border-color: var(--teal); }
 .gpt-area::placeholder { color: var(--text3); }
-.gpt-btn-row { display: flex; gap: 6px; margin-top: 6px; }
-.gpt-btn {
-  flex: 1; font-family: var(--mono); font-size: 9px;
-  padding: 7px; border-radius: 6px;
-  border: 1px solid var(--border2);
-  background: transparent; color: var(--text2);
-  cursor: pointer; transition: all .15s; text-align: center;
+.apply-btn {
+  width: 100%; padding: 10px;
+  background: rgba(0,201,167,0.1); color: var(--teal);
+  border: 1px solid rgba(0,201,167,0.25); border-radius: 10px;
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  cursor: pointer; transition: all .15s; letter-spacing: .3px;
 }
-.gpt-btn:hover { border-color: var(--teal); color: var(--teal); }
-.gpt-btn.primary {
-  background: rgba(0,201,167,0.08);
-  border-color: rgba(0,201,167,0.25);
-  color: var(--teal);
+.apply-btn:hover { background: rgba(0,201,167,0.18); border-color: var(--teal); }
+.rec-cards { display: flex; flex-direction: column; gap: 8px; }
+.rec-card {
+  background: var(--bg3); border: 1px solid rgba(0,201,167,0.2);
+  border-radius: 10px; padding: 12px 14px;
 }
-.gpt-btn.primary:hover { background: rgba(0,201,167,0.14); }
+.rec-card-node { font-family: var(--mono); font-size: 10px; color: var(--teal); margin-bottom: 4px; }
+.rec-card-action { font-size: 12px; color: var(--text); margin-bottom: 6px; font-weight: 500; }
+.rec-card-metrics { display: flex; gap: 8px; }
+.rec-metric { font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 4px; }
+.rec-metric.fr  { background: rgba(52,211,153,.1); color: var(--green); border: 1px solid rgba(52,211,153,.2); }
+.rec-metric.cost{ background: rgba(240,165,0,.1); color: var(--amber2); border: 1px solid rgba(240,165,0,.2); }
+
+/* panel label shared */
+.panel-label {
+  font-family: var(--mono); font-size: 9px; color: var(--text3);
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px;
+}
 
 /* Legend */
 .legend {
@@ -442,77 +509,122 @@ body {
       </div>
     </div>
 
-    <!-- RIGHT PANEL -->
+    <!-- RIGHT PANEL — tabbed -->
     <div class="right-panel">
 
-      <!-- KPI strip -->
-      <div class="kpi-strip">
-        <div class="kpi-mini">
-          <div class="kpi-mini-label">Fill Rate Plant W+4</div>
-          <div class="kpi-mini-val" id="kpi-fr-plant" style="color:var(--text3)">—</div>
-          <div class="kpi-mini-sub" id="kpi-fr-plant-sub"></div>
+      <!-- Tab nav -->
+      <div class="rp-tabs">
+        <button class="rp-tab active" onclick="switchTab('kpi',this)">KPIs</button>
+        <button class="rp-tab" onclick="switchTab('risks',this)">Risks</button>
+        <button class="rp-tab" onclick="switchTab('ai',this)">AI Recs</button>
+      </div>
+
+      <!-- TAB 1: KPIs -->
+      <div class="rp-pane active" id="pane-kpi">
+
+        <!-- 2x2 KPI cards -->
+        <div class="kpi-grid-2x2" id="kpiCards">
+          <div class="kpi-card c-teal">
+            <div class="kpi-card-label">Fill Rate Plant W+4</div>
+            <div class="kpi-card-val" id="kpi-fr-plant">—</div>
+            <div class="kpi-card-sub" id="kpi-fr-plant-sub">W+8 / W+12</div>
+          </div>
+          <div class="kpi-card c-blue">
+            <div class="kpi-card-label">Fill Rate Network W+4</div>
+            <div class="kpi-card-val" id="kpi-fr-net">—</div>
+            <div class="kpi-card-sub" id="kpi-fr-net-sub">W+8 / W+12</div>
+          </div>
+          <div class="kpi-card c-red">
+            <div class="kpi-card-label">Stockout Nodes</div>
+            <div class="kpi-card-val" id="kpi-stockout">—</div>
+            <div class="kpi-card-sub" id="kpi-stockout-sub">SKU-Plant nodes</div>
+          </div>
+          <div class="kpi-card c-amber">
+            <div class="kpi-card-label">Late POs</div>
+            <div class="kpi-card-val" id="kpi-latepo">—</div>
+            <div class="kpi-card-sub" id="kpi-latepo-sub">Of open orders</div>
+          </div>
+          <div class="kpi-card c-purple">
+            <div class="kpi-card-label">Capacity Overloads</div>
+            <div class="kpi-card-val" id="kpi-overload">—</div>
+            <div class="kpi-card-sub">Overloaded weeks</div>
+          </div>
+          <div class="kpi-card c-green">
+            <div class="kpi-card-label">Excess Inventory</div>
+            <div class="kpi-card-val" id="kpi-excess">—</div>
+            <div class="kpi-card-sub">Above max target</div>
+          </div>
         </div>
-        <div class="kpi-mini">
-          <div class="kpi-mini-label">Fill Rate Network W+4</div>
-          <div class="kpi-mini-val" id="kpi-fr-net" style="color:var(--text3)">—</div>
-          <div class="kpi-mini-sub" id="kpi-fr-net-sub"></div>
+
+        <!-- Fill rate horizon bars -->
+        <div class="fr-chart-block">
+          <div class="fr-chart-title">Fill rate horizon</div>
+          <div id="frBars"></div>
         </div>
-        <div class="kpi-mini">
-          <div class="kpi-mini-label">Stockout Nodes</div>
-          <div class="kpi-mini-val" id="kpi-stockout" style="color:var(--text3)">—</div>
-          <div class="kpi-mini-sub" id="kpi-stockout-sub"></div>
+
+        <!-- Cost block -->
+        <div class="cost-row-block">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Financial impact</div>
+          <div class="cost-row">
+            <span class="cost-lbl">Lost-sales exposure</span>
+            <span class="cost-val red"  id="fi-lost">—</span>
+          </div>
+          <div class="cost-row">
+            <span class="cost-lbl">Expedite cost est.</span>
+            <span class="cost-val amber" id="fi-exp">—</span>
+          </div>
+          <div class="cost-row">
+            <span class="cost-lbl">Overtime cost est.</span>
+            <span class="cost-val amber" id="fi-ot">—</span>
+          </div>
+          <div class="cost-divider"></div>
+          <div class="cost-row">
+            <span class="cost-total-lbl">Total cost at risk</span>
+            <span class="cost-total-val" id="fi-total">—</span>
+          </div>
         </div>
-        <div class="kpi-mini">
-          <div class="kpi-mini-label">Late POs</div>
-          <div class="kpi-mini-val" id="kpi-latepo" style="color:var(--text3)">—</div>
-          <div class="kpi-mini-sub" id="kpi-latepo-sub"></div>
+
+      </div><!-- end pane-kpi -->
+
+      <!-- TAB 2: RISKS -->
+      <div class="rp-pane" id="pane-risks">
+        <div style="padding:10px 14px 0;font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;flex-shrink:0;">
+          Click risk to highlight network
+        </div>
+        <div class="risk-feed" id="riskFeed">
+          <div style="font-size:12px;color:var(--text3);padding:32px 0;text-align:center;">
+            Upload workbook or load demo
+          </div>
         </div>
       </div>
 
-      <!-- Fill rate bars -->
-      <div class="fillrate-panel">
-        <div class="panel-label">Fill rate horizon</div>
-        <div id="frBars"></div>
-      </div>
+      <!-- TAB 3: AI RECS -->
+      <div class="rp-pane" id="pane-ai">
+        <div class="ai-pane-inner">
 
-      <!-- Risk feed -->
-      <div class="panel-label" style="padding:10px 16px 0;flex-shrink:0;">Top risks — click to highlight network</div>
-      <div class="risk-feed" id="riskFeed">
-        <div style="font-size:12px;color:var(--text3);padding:24px 0;text-align:center;">
-          Upload workbook or load demo to generate risks
-        </div>
-      </div>
+          <div class="ai-hint">
+            Open your SCNC agent in ChatGPT, run the analysis, then ask it to format recommendations as JSON and paste below.
+          </div>
 
-      <!-- Financial impact -->
-      <div class="impact-panel">
-        <div class="panel-label" style="margin-bottom:10px;">Financial impact</div>
-        <div class="impact-row">
-          <span class="impact-lbl">Lost-sales exposure</span>
-          <span class="impact-val" id="fi-lost" style="color:var(--text3)">—</span>
-        </div>
-        <div class="impact-row">
-          <span class="impact-lbl">Expedite cost est.</span>
-          <span class="impact-val" id="fi-exp" style="color:var(--text3)">—</span>
-        </div>
-        <div class="impact-row">
-          <span class="impact-lbl">Overtime cost est.</span>
-          <span class="impact-val" id="fi-ot" style="color:var(--text3)">—</span>
-        </div>
-        <div class="impact-divider"></div>
-        <div class="impact-row" style="font-size:13px;">
-          <span class="impact-lbl" style="font-weight:600;color:var(--text);">Total cost at risk</span>
-          <span class="impact-val red" id="fi-total">—</span>
-        </div>
-      </div>
+          <div class="ai-prompt-box">
+            <div class="ai-prompt-label">Copy this prompt into ChatGPT</div>
+            <div class="ai-prompt-text" id="aiPromptText">Format your top recommendations as JSON:
+{"recommendations":[{"node":"Plant-A","action":"Expedite PO_102","fill_rate_delta":"+4.2%","cost_delta":"$8,400"}]}</div>
+          </div>
 
-      <!-- GPT recommendations import -->
-      <div class="gpt-panel">
-        <div class="panel-label" style="margin-bottom:6px;">Paste ChatGPT recommendations JSON</div>
-        <textarea class="gpt-area" id="gptJsonInput"
-          placeholder='{"recommendations":[{"node":"Plant-A","action":"Expedite PO_102","fill_rate_delta":"+4.2%","cost_delta":"$8,400"}]}'></textarea>
-        <div class="gpt-btn-row">
-          <button class="gpt-btn" onclick="openGPT()">Open in ChatGPT</button>
-          <button class="gpt-btn primary" onclick="importGPTRecs()">Apply to Network</button>
+          <button class="gpt-open-btn" onclick="openGPT()">Open SCNC Agent in ChatGPT →</button>
+
+          <div>
+            <div class="ai-json-label" style="margin-bottom:6px;">Paste JSON response here</div>
+            <textarea class="gpt-area" id="gptJsonInput"
+              placeholder='{"recommendations":[{"node":"Plant-A","action":"Expedite PO_102","fill_rate_delta":"+4.2%","cost_delta":"$8,400"}]}'></textarea>
+          </div>
+
+          <button class="apply-btn" onclick="importGPTRecs()">Apply Recommendations to Network</button>
+
+          <!-- Applied recs display -->
+          <div id="recCards" class="rec-cards"></div>
+
         </div>
       </div>
 
@@ -527,7 +639,7 @@ body {
    SETUP: Replace GPT_URL with your Custom GPT link.
    Find it on chatgpt.com → your GPT → "Share" → copy link.
    ============================================= */
-const GPT_URL = 'https://chatgpt.com/g/g-69b8327e778081919e3c3621ece8a06a-scnc-supply-risk-agent-2-0';
+const GPT_URL = 'https://chatgpt.com/g/YOUR-GPT-ID-HERE';
 
 let networkData  = null;
 let recs         = [];
@@ -546,6 +658,14 @@ function setMode(m) {
 }
 
 function openGPT() { window.open(GPT_URL, '_blank'); }
+
+/* ---- TAB SWITCHER ---- */
+function switchTab(name, btn) {
+  document.querySelectorAll('.rp-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.rp-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('pane-' + name).classList.add('active');
+  btn.classList.add('active');
+}
 
 /* ---- FILE HANDLING ---- */
 const uploadBox = document.getElementById('uploadBox');
@@ -696,19 +816,21 @@ function buildNetworkFromData(parsed) {
 
   /* Stockouts per plant */
   const stockoutByPlant = {};
+  let ssBreaches = 0;
   Object.entries(invMap).forEach(([key, qty]) => {
     const [sku, plant] = key.split('|');
     const ss = polMap[key] || 0;
     if (qty <= 0 || (ss > 0 && qty < ss * 0.3)) {
       stockoutByPlant[plant] = (stockoutByPlant[plant] || 0) + 1;
     }
+    if (ss > 0 && qty < ss) ssBreaches++;
   });
 
   /* External signals */
   const extEvents = ext.map(r => ({
     type: getField(r, 'event_type', 'EventType') || 'disruption',
     node: getField(r, 'affected_node_id', 'affected_node', 'AffectedNode') || '',
-    sev:  String(getField(r, 'severity', 'Severity') || 'medium').toLowerCase()
+    sev:  (getField(r, 'severity', 'Severity') || 'medium').toLowerCase()
   }));
 
   /* CM for lost-sales */
@@ -826,6 +948,8 @@ function buildNetworkFromData(parsed) {
       sev: totalStockouts >= 5 ? 'critical' : 'high',
       title: `Material stockout — ${totalStockouts} SKU-Plant node${totalStockouts > 1 ? 's' : ''}`,
       body: `FG-Plant fill rate ${frPlant}% in W+4. Insufficient on-hand stock detected.`,
+      cause: `${ssBreaches > 0 ? ssBreaches + ' safety-stock breach(es). ' : ''}Check inbound receipts and BOM dependencies.`,
+      action: 'Expedite inbound POs or reposition inventory. Run "optimize service" in ChatGPT agent.',
       nodes: plantNodes.filter(n => (stockoutByPlant[n.label] || 0) > 0).slice(0, 4).map(n => n.label),
       highlight: plantNodes.filter(n => (stockoutByPlant[n.label] || 0) > 0).map(n => n.id)
     });
@@ -834,7 +958,9 @@ function buildNetworkFromData(parsed) {
     risks.push({
       sev: latePOCount >= 4 ? 'high' : 'medium',
       title: `${latePOCount} late inbound PO${latePOCount > 1 ? 's' : ''}`,
-      body: `POs past 7-day delay threshold. ${latePOList.slice(0, 2).map(p => p.poId).join(', ')} exposed.`,
+      body: `POs past 7-day delay threshold. At-risk supply may miss demand windows.`,
+      cause: `${latePOList.slice(0, 2).map(p => p.poId + ' (+' + p.delayDays + 'd)').join(', ')}`,
+      action: 'Check expedite flags. Consider alternate supplier or inter-site reposition.',
       nodes: Object.keys(lateByPlant).slice(0, 4),
       highlight: Object.keys(lateByPlant).slice(0, 4).map(p => 'plt_' + p)
     });
@@ -843,7 +969,9 @@ function buildNetworkFromData(parsed) {
     risks.push({
       sev: otTotal >= 4 ? 'high' : 'medium',
       title: `Capacity overload — ${otTotal} week${otTotal > 1 ? 's' : ''}`,
-      body: `Plant-workcenter buckets above available capacity. Production delays possible.`,
+      body: `Plant-workcenter buckets above available capacity.`,
+      cause: `${Object.entries(overloadByPlant).slice(0,2).map(([p,w])=>p+': '+w+' wk(s)').join(', ')}`,
+      action: 'Evaluate overtime headroom or defer non-critical production orders.',
       nodes: Object.keys(overloadByPlant).slice(0, 4),
       highlight: Object.keys(overloadByPlant).slice(0, 4).map(p => 'plt_' + p)
     });
@@ -852,7 +980,9 @@ function buildNetworkFromData(parsed) {
     risks.push({
       sev: 'high',
       title: `${extEvents.length} external disruption signal${extEvents.length > 1 ? 's' : ''}`,
-      body: `Active events affecting supply nodes. Monitor for FG plant propagation.`,
+      body: `Active events affecting supply nodes.`,
+      cause: extEvents.slice(0,2).map(e=>`${e.type} at ${e.node||'network'}`).join('; '),
+      action: 'Monitor for propagation to FG plants. Map affected lanes in ChatGPT agent.',
       nodes: extEvents.slice(0, 3).map(e => e.node || 'Network'),
       highlight: nodes.filter(n => extEvents.some(e => n.label.includes(e.node || ''))).map(n => n.id)
     });
@@ -862,6 +992,8 @@ function buildNetworkFromData(parsed) {
       sev: 'low',
       title: 'No critical constraints detected',
       body: `Fill rate tracking at ${frPlant}% FG-Plant, ${frNet}% FG-Network for W+4.`,
+      cause: 'Current supply plan appears aligned with demand across the 12-week horizon.',
+      action: 'Monitor weekly and upload refreshed snapshot to track movement.',
       nodes: plantList.slice(0, 3), highlight: []
     });
   }
@@ -882,20 +1014,45 @@ function buildNetworkFromData(parsed) {
 function renderDashboard() {
   const d = networkData;
 
-  /* KPIs */
-  const frColor = v => v >= 90 ? 'green' : v >= 75 ? 'amber' : 'red';
-  const setKpi = (id, val, cls, sub = '') => {
-    document.getElementById(id).textContent = val;
-    document.getElementById(id).className = 'kpi-mini-val ' + cls;
-    const s = document.getElementById(id + '-sub');
-    if (s) s.textContent = sub;
-  };
-  setKpi('kpi-fr-plant', d.frPlant + '%', frColor(d.frPlant), `W+8: ${Math.round(d.frPlant - 6)}% · W+12: ${Math.round(d.frPlant - 12)}%`);
-  setKpi('kpi-fr-net',   d.frNet   + '%', frColor(d.frNet),   `W+8: ${Math.round(d.frNet - 5)}% · W+12: ${Math.round(d.frNet - 10)}%`);
-  setKpi('kpi-stockout', d.totalStockouts, d.totalStockouts === 0 ? 'green' : d.totalStockouts < 5 ? 'amber' : 'red', 'SKU-Plant nodes');
-  setKpi('kpi-latepo',   d.latePOCount,    d.latePOCount === 0 ? 'green' : d.latePOCount < 4 ? 'amber' : 'red', 'Of open orders');
+  /* ---- KPI CARDS ---- */
+  const frColor = v => v >= 90 ? 'c-teal' : v >= 75 ? 'c-amber' : 'c-red';
+  const frVal   = v => v >= 90 ? 'green'  : v >= 75 ? 'amber'   : 'red';
 
-  /* Fill rate bars */
+  // Fill rate plant
+  const frpEl = document.getElementById('kpi-fr-plant');
+  frpEl.textContent = d.frPlant + '%';
+  frpEl.closest('.kpi-card').className = 'kpi-card ' + frColor(d.frPlant);
+  document.getElementById('kpi-fr-plant-sub').textContent = `W+8: ${Math.round(d.frPlant-6)}% · W+12: ${Math.round(d.frPlant-12)}%`;
+
+  // Fill rate network
+  const frnEl = document.getElementById('kpi-fr-net');
+  frnEl.textContent = d.frNet + '%';
+  frnEl.closest('.kpi-card').className = 'kpi-card ' + frColor(d.frNet);
+  document.getElementById('kpi-fr-net-sub').textContent = `W+8: ${Math.round(d.frNet-5)}% · W+12: ${Math.round(d.frNet-10)}%`;
+
+  // Stockouts
+  const soEl = document.getElementById('kpi-stockout');
+  soEl.textContent = d.totalStockouts;
+  soEl.closest('.kpi-card').className = 'kpi-card ' + (d.totalStockouts === 0 ? 'c-green' : d.totalStockouts < 5 ? 'c-amber' : 'c-red');
+  document.getElementById('kpi-stockout-sub').textContent = 'SKU-Plant nodes';
+
+  // Late POs
+  const lpEl = document.getElementById('kpi-latepo');
+  lpEl.textContent = d.latePOCount;
+  lpEl.closest('.kpi-card').className = 'kpi-card ' + (d.latePOCount === 0 ? 'c-green' : d.latePOCount < 4 ? 'c-amber' : 'c-red');
+  document.getElementById('kpi-latepo-sub').textContent = 'Of open orders';
+
+  // Capacity overloads
+  const olTotal = Object.values(d.overloadByPlant || {}).reduce((a,b)=>a+b,0);
+  const olEl = document.getElementById('kpi-overload');
+  if (olEl) {
+    olEl.textContent = olTotal;
+    olEl.closest('.kpi-card').className = 'kpi-card ' + (olTotal === 0 ? 'c-green' : olTotal < 3 ? 'c-purple' : 'c-red');
+  }
+  const exEl = document.getElementById('kpi-excess');
+  if (exEl) { exEl.textContent = '0'; }
+
+  /* ---- FILL RATE BARS ---- */
   const bars = [
     { l: 'FG-Plant W+4',    p: d.frPlant },
     { l: 'FG-Plant W+8',    p: Math.round(d.frPlant - 6) },
@@ -905,27 +1062,26 @@ function renderDashboard() {
     { l: 'FG-Network W+12', p: Math.round(d.frNet - 10) }
   ];
   document.getElementById('frBars').innerHTML = bars.map(b => {
-    const p = Math.max(0, b.p);
+    const p   = Math.max(0, b.p);
     const col = p >= 90 ? '#34d399' : p >= 75 ? '#fbbf24' : '#fc8181';
-    return `<div class="fr-row">
-      <span class="fr-lbl">${b.l}</span>
-      <div class="fr-bar-wrap"><div class="fr-bar" style="width:${p}%;background:${col}"></div></div>
-      <span class="fr-pct" style="color:${col}">${p}%</span>
+    return `<div class="fr-bar-row">
+      <span class="fr-bar-lbl">${b.l}</span>
+      <div class="fr-bar-track"><div class="fr-bar-fill" style="width:${p}%;background:${col}"></div></div>
+      <span class="fr-bar-pct" style="color:${col}">${p}%</span>
     </div>`;
   }).join('');
 
-  /* Financial impact */
+  /* ---- FINANCIAL IMPACT ---- */
   document.getElementById('fi-lost').textContent  = d.lostSales;
-  document.getElementById('fi-lost').className    = 'impact-val ' + (d.lostSales === 'N/A' ? '' : 'red');
+  document.getElementById('fi-lost').className    = 'cost-val ' + (d.lostSales === 'N/A' ? '' : 'red');
   document.getElementById('fi-exp').textContent   = d.expCost;
-  document.getElementById('fi-exp').className     = 'impact-val ' + (d.expCost === '$0' ? 'green' : 'amber');
+  document.getElementById('fi-exp').className     = 'cost-val ' + (d.expCost  === '$0' ? 'green' : 'amber');
   document.getElementById('fi-ot').textContent    = d.otCost;
-  document.getElementById('fi-ot').className      = 'impact-val ' + (d.otCost === '$0' ? 'green' : 'amber');
-  const numerics = [d.lostSales, d.expCost, d.otCost]
+  document.getElementById('fi-ot').className      = 'cost-val ' + (d.otCost   === '$0' ? 'green' : 'amber');
+  const nums = [d.lostSales, d.expCost, d.otCost]
     .filter(x => x !== 'N/A' && x !== '$0')
     .map(x => parseInt(x.replace(/[^0-9]/g, '')) || 0);
-  document.getElementById('fi-total').textContent = numerics.length
-    ? '~$' + numerics.reduce((a, b) => a + b, 0) + 'K' : 'N/A';
+  document.getElementById('fi-total').textContent = nums.length ? '~$' + nums.reduce((a,b)=>a+b,0)+'K' : 'N/A';
 
   renderRisks();
   drawNetwork();
@@ -939,7 +1095,11 @@ function renderRisks() {
         <span class="sev-badge ${r.sev}">${r.sev.toUpperCase()}</span>
         <span class="ri-title">${r.title}</span>
       </div>
-      <div class="ri-body">${r.body}</div>
+      <div class="ri-lines">
+        <div class="ri-line"><span class="ri-line-lbl">Impact</span><span class="ri-line-val">${r.body}</span></div>
+        ${r.cause ? `<div class="ri-line"><span class="ri-line-lbl">Cause</span><span class="ri-line-val">${r.cause}</span></div>` : ''}
+        ${r.action ? `<div class="ri-line"><span class="ri-line-lbl">Action</span><span class="ri-line-val">${r.action}</span></div>` : ''}
+      </div>
       <div class="ri-nodes">${r.nodes.slice(0, 5).map(n => `<span class="ri-node-tag">${n}</span>`).join('')}</div>
     </div>`).join('');
 }
@@ -1185,9 +1345,19 @@ function importGPTRecs() {
     const parsed = JSON.parse(raw);
     recs = parsed.recommendations || parsed.actions || parsed || [];
     if (!Array.isArray(recs)) recs = Object.values(recs);
-    setMode('financial');
     document.getElementById('gptJsonInput').value = '';
-    alert(`Applied ${recs.length} recommendation${recs.length !== 1 ? 's' : ''} to network.\nSwitch to Financial Impact view to see teal overlays on affected nodes.`);
+    // Render rec cards
+    document.getElementById('recCards').innerHTML = recs.map(r => `
+      <div class="rec-card">
+        <div class="rec-card-node">${r.node || '—'}</div>
+        <div class="rec-card-action">${r.action || '—'}</div>
+        <div class="rec-card-metrics">
+          ${r.fill_rate_delta ? `<span class="rec-metric fr">${r.fill_rate_delta} fill rate</span>` : ''}
+          ${r.cost_delta ? `<span class="rec-metric cost">${r.cost_delta}</span>` : ''}
+        </div>
+      </div>`).join('');
+    setMode('financial');
+    drawNetwork();
   } catch (err) {
     alert('Invalid JSON — please paste the exact JSON block from ChatGPT.\n\nExpected format:\n{"recommendations":[{"node":"Plant-A","action":"Expedite PO_102","fill_rate_delta":"+4.2%","cost_delta":"$8,400"}]}');
   }
@@ -1226,13 +1396,19 @@ function loadDemo() {
     ],
     risks: [
       { sev:'critical', title:'Plant-A material stockout — 4 SKU nodes',
-        body:'FG-Plant fill rate drops to 68% in W+4. Supplier-A delay of 11 days on PO_102 is root cause. No alternate inbound before W+3.',
+        body:'FG-Plant fill rate drops to 68% in W+4.',
+        cause:'Supplier-A delay of 11 days on PO_102. No alternate inbound before W+3.',
+        action:'Expedite PO_102 or reposition 600 units from DC-North.',
         nodes:['Plant-A','Supplier-A'], highlight:['plt_PlantA','sup_SupA'] },
       { sev:'high', title:'3 late inbound POs from Supplier-A',
-        body:'PO_102, PO_108, PO_115 delayed beyond 7-day threshold. At-risk supply of RM-004, RM-007.',
+        body:'PO_102, PO_108, PO_115 delayed beyond 7-day threshold.',
+        cause:'At-risk supply of RM-004, RM-007 affecting Plant-A and Plant-B.',
+        action:'Check expedite allowance on PO_108. Flag alternate supplier.',
         nodes:['Supplier-A','Plant-A','Plant-B'], highlight:['sup_SupA','plt_PlantA','plt_PlantB'] },
       { sev:'medium', title:'Capacity overload — Plant-A, 3 weeks',
-        body:'Workcenter WC-01 at 128% utilisation in W+2–W+4. Overtime feasibility: 15% headroom available.',
+        body:'Workcenter WC-01 at 128% utilisation in W+2–W+4.',
+        cause:'Production order backlog not cleared from prior week slip.',
+        action:'Overtime feasibility: 15% headroom available. Defer non-critical orders.',
         nodes:['Plant-A'], highlight:['plt_PlantA'] }
     ],
     snapId:'2026-W12', frPlant:79, frNet:76,
