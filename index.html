@@ -830,7 +830,7 @@ function buildNetworkFromData(parsed) {
   const extEvents = ext.map(r => ({
     type: getField(r, 'event_type', 'EventType') || 'disruption',
     node: getField(r, 'affected_node_id', 'affected_node', 'AffectedNode') || '',
-    sev:  (getField(r, 'severity', 'Severity') || 'medium').toLowerCase()
+    sev:  String(getField(r, 'severity', 'Severity') || 'medium').toLowerCase()
   }));
 
   /* CM for lost-sales */
