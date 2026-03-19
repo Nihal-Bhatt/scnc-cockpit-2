@@ -55,6 +55,8 @@ body {
   display: grid;
   grid-template-rows: 52px 1fr;
   height: 100vh;
+  max-width: 100vw;
+  overflow: hidden;
 }
 
 .body {
@@ -62,6 +64,8 @@ body {
   grid-template-columns: 1fr 380px;
   overflow: hidden;
   min-height: 0;
+  width: 100%;
+  max-width: 100vw;
 }
 
 /* =============================================
@@ -71,11 +75,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 20px;
   border-bottom: 1px solid var(--border);
   background: var(--bg2);
-  gap: 16px;
+  gap: 12px;
   z-index: 20;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .topbar-left { display: flex; align-items: center; gap: 12px; }
@@ -241,6 +247,8 @@ body {
   background: var(--bg2);
   width: 380px;
   min-width: 0;
+  max-width: 380px;
+  flex-shrink: 0;
 }
 
 /* Tab nav */
@@ -249,15 +257,21 @@ body {
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   background: var(--bg2);
+  width: 100%;
+  overflow: hidden;
 }
 .rp-tab {
-  flex: 1; padding: 13px 6px;
+  flex: 1; padding: 13px 4px;
   font-family: var(--mono); font-size: 10px; font-weight: 700;
-  letter-spacing: .6px; text-transform: uppercase;
+  letter-spacing: .4px; text-transform: uppercase;
   color: var(--text3); border: none; background: transparent;
   cursor: pointer; transition: all .15s;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 .rp-tab:hover { color: var(--text2); }
 .rp-tab.active { color: var(--amber); border-bottom-color: var(--amber); }
@@ -269,13 +283,14 @@ body {
 /* ---- TAB 1: KPIs ---- */
 .kpi-grid-2x2 {
   display: grid; grid-template-columns: repeat(2, minmax(0,1fr));
-  gap: 10px; padding: 14px 14px 0;
+  gap: 8px; padding: 12px 12px 0;
   flex-shrink: 0;
 }
 .kpi-card {
-  border-radius: 12px; padding: 14px;
+  border-radius: 12px; padding: 12px;
   border: 1px solid var(--border);
   position: relative; overflow: hidden;
+  min-width: 0;
 }
 .kpi-card::after {
   content: ''; position: absolute;
@@ -309,11 +324,11 @@ body {
 
 /* Fill rate chart block */
 .fr-chart-block {
-  margin: 14px 14px 0;
+  margin: 12px 12px 0;
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 14px;
+  padding: 12px;
   flex-shrink: 0;
 }
 .fr-chart-title {
@@ -330,11 +345,11 @@ body {
 
 /* Cost row */
 .cost-row-block {
-  margin: 14px 14px 14px;
+  margin: 12px 12px 12px;
   background: var(--bg3);
   border: 1px solid rgba(252,129,129,0.15);
   border-radius: 12px;
-  padding: 14px;
+  padding: 12px;
   flex-shrink: 0;
 }
 .cost-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; }
@@ -1359,37 +1374,114 @@ function importGPTRecs() {
         </div>
       </div>`).join('');
 
-    // ---- LIVE KPI REFRESH ----
-    // Sum fill_rate_delta improvements from all recs
+    if (!networkData) { setMode('financial'); drawNetwork(); return; }
+
+    // ── 1. PARSE DELTAS FROM ALL RECS ──────────────────────────────
     let totalFRDelta = 0;
+    let totalCostSaving = 0;
+    const resolvedNodes = new Set(); // nodes where action resolves the risk
+
     recs.forEach(r => {
+      // fill rate delta
       if (r.fill_rate_delta) {
-        const match = r.fill_rate_delta.match(/([+-]?\d+\.?\d*)/);
-        if (match) totalFRDelta += parseFloat(match[1]);
+        const m = r.fill_rate_delta.match(/([+-]?\d+\.?\d*)/);
+        if (m) totalFRDelta += parseFloat(m[1]);
+      }
+      // cost delta (negative = saving, positive = cost)
+      if (r.cost_delta) {
+        const m = r.cost_delta.replace(/,/g,'').match(/([+-]?\d+\.?\d*)/);
+        if (m) totalCostSaving += parseFloat(m[1]);
+      }
+      // track which nodes have recommendations
+      if (r.node) resolvedNodes.add(r.node);
+    });
+
+    // ── 2. UPDATE FILL RATES ───────────────────────────────────────
+    networkData.frPlant = Math.min(99, Math.round(networkData.frPlant + totalFRDelta));
+    networkData.frNet   = Math.min(99, Math.round(networkData.frNet   + totalFRDelta * 0.85));
+
+    // ── 3. UPDATE STOCKOUTS & NODE RISK ──────────────────────────
+    // For each rec that targets a PLANT node, reduce its stockouts
+    // and upgrade its risk level toward 'ok'
+    networkData.nodes.forEach(n => {
+      if (!resolvedNodes.has(n.label)) return;
+      if (n.type === 'PLANT') {
+        // Reduce stockouts (each rec resolves ~1-2 stockouts)
+        const recForNode = recs.filter(r => r.node === n.label);
+        const reduction  = Math.min(n.details.stockouts || 0, recForNode.length * 2);
+        n.details.stockouts  = Math.max(0, (n.details.stockouts  || 0) - reduction);
+        n.details.overloads  = Math.max(0, (n.details.overloads  || 0) - recForNode.length);
+        n.details.latePOs    = Math.max(0, (n.details.latePOs    || 0) - recForNode.length);
+        n.details.fillRate   = Math.min(99, Math.round((n.details.fillRate || 80) + totalFRDelta));
+        // Re-evaluate risk
+        const so = n.details.stockouts, ol = n.details.overloads, lp = n.details.latePOs;
+        n.risk = (so >= 3 || ol >= 3) ? 'critical'
+               : (so >= 1 || ol >= 1 || lp >= 2) ? 'high'
+               : lp >= 1 ? 'medium' : 'ok';
+      }
+      if (n.type === 'SUPPLIER') {
+        n.details.latePOs = Math.max(0, (n.details.latePOs || 0) - 1);
+        n.risk = n.details.latePOs > 0 || n.details.events > 0 ? 'high' : 'ok';
       }
     });
 
-    if (networkData && totalFRDelta !== 0) {
-      // Apply delta to fill rates (capped at 99%)
-      const newFRPlant = Math.min(99, Math.round(networkData.frPlant + totalFRDelta));
-      const newFRNet   = Math.min(99, Math.round(networkData.frNet   + totalFRDelta * 0.85));
+    // ── 4. UPDATE AGGREGATE KPI COUNTS ────────────────────────────
+    networkData.totalStockouts = networkData.nodes
+      .filter(n => n.type === 'PLANT')
+      .reduce((s, n) => s + (n.details.stockouts || 0), 0);
+    networkData.latePOCount = networkData.nodes
+      .filter(n => n.type === 'PLANT')
+      .reduce((s, n) => s + (n.details.latePOs || 0), 0);
 
-      // Update stored values so bars also refresh
-      networkData.frPlant = newFRPlant;
-      networkData.frNet   = newFRNet;
+    // ── 5. UPDATE FINANCIAL IMPACT ────────────────────────────────
+    // Reduce lost-sales proportional to stockout improvement
+    if (networkData.lostSales && networkData.lostSales !== 'N/A') {
+      const origLost = parseInt((networkData.lostSales || '0').replace(/[^0-9]/g,'')) || 0;
+      const frImprovement = Math.min(1, totalFRDelta / 20); // scale: +20% FR = full resolution
+      const newLost = Math.max(0, Math.round(origLost * (1 - frImprovement)));
+      networkData.lostSales = newLost > 0 ? '$' + newLost + 'K' : '$0';
+    }
+    if (networkData.expCost && networkData.expCost !== '$0') {
+      // Expediting resolves late POs but adds cost
+      const origExp = parseInt((networkData.expCost || '0').replace(/[^0-9]/g,'')) || 0;
+      networkData.expCost = '$' + Math.round(origExp * 0.6) + 'K'; // 40% resolved, 60% still active
+    }
 
-      // Re-render all KPIs and bars with updated values
-      renderDashboard();
+    // ── 6. REFRESH RISKS ──────────────────────────────────────────
+    // Mark resolved risks as improved; keep unresolved ones
+    networkData.risks = networkData.risks.map(risk => {
+      const isAddressed = risk.highlight.some(id => {
+        const node = networkData.nodes.find(n => n.id === id);
+        return node && resolvedNodes.has(node.label);
+      });
+      if (!isAddressed) return risk;
+      // Downgrade severity
+      const sevMap = { critical: 'high', high: 'medium', medium: 'low', low: 'low' };
+      const rec = recs.find(r => risk.nodes.includes(r.node));
+      return {
+        ...risk,
+        sev: sevMap[risk.sev] || 'low',
+        body: risk.body + ` Action applied: ${rec ? rec.action : 'see AI Recs tab'}.`,
+        action: rec ? `Applied — ${rec.fill_rate_delta} fill rate improvement expected.` : risk.action
+      };
+    });
 
-      // Flash the fill rate cards to signal update
-      ['kpi-fr-plant','kpi-fr-net'].forEach(id => {
+    // ── 7. FULL RE-RENDER ──────────────────────────────────────────
+    renderDashboard();
+
+    // Flash ALL updated KPI cards teal to signal live refresh
+    const flashIds = ['kpi-fr-plant','kpi-fr-net','kpi-stockout','kpi-latepo'];
+    flashIds.forEach((id, i) => {
+      setTimeout(() => {
         const el = document.getElementById(id);
         if (!el) return;
-        el.closest('.kpi-card').style.transition = 'box-shadow .3s';
-        el.closest('.kpi-card').style.boxShadow = '0 0 0 2px rgba(0,201,167,0.6)';
-        setTimeout(() => { el.closest('.kpi-card').style.boxShadow = ''; }, 1200);
-      });
-    }
+        const card = el.closest('.kpi-card');
+        if (!card) return;
+        card.style.transition = 'box-shadow .3s';
+        card.style.boxShadow  = '0 0 0 2px rgba(0,201,167,0.7)';
+        setTimeout(() => { card.style.boxShadow = ''; }, 1400);
+      }, i * 120); // stagger each card flash
+    });
 
     setMode('financial');
     drawNetwork();
